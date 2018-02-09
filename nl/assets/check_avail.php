@@ -1,0 +1,83 @@
+<?php
+
+if(!$_POST) exit;
+
+// Email verification, do not edit.
+function isEmail($email_booking ) {
+	return(preg_match("/^[-_.[:alnum:]]+@((([[:alnum:]]|[[:alnum:]][[:alnum:]-]*[[:alnum:]])\.)+(ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|in|info|int|io|iq|ir|is|it|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nt|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)$|(([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5])\.){3}([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5]))$/i",$email_booking ));
+}
+
+if (!defined("PHP_EOL")) define("PHP_EOL", "\r\n");
+
+$check_in     = $_POST['check_in'];
+$check_out    = $_POST['check_out'];
+$adults    = $_POST['adults'];
+$children   = $_POST['children'];
+$room_type = $_POST['room_type'];
+$name_booking   = $_POST['name_booking'];
+$email_booking   = $_POST['email_booking'];
+
+if(trim($check_in) == '') {
+	echo '<div class="error_message">Vul aankomst in.</div>';
+	exit();
+} else if(trim($check_out ) == '') {
+	echo '<div class="error_message">Vul vertrekdatum in.</div>';
+	exit();
+} else if(trim($adults ) == '') {
+	echo '<div class="error_message">Aantal volwassenen.</div>';
+	exit();
+} else if(trim($room_type ) == '') {
+	echo '<div class="error_message">Kies een kamer</div>';
+	exit();
+} else if(trim($name_booking ) == '') {
+	echo '<div class="error_message">Vul je naam in.</div>';
+	exit();
+} else if(trim($email_booking) == '') {
+	echo '<div class="error_message">Voorzie een geldig e-mail adres.</div>';
+	exit();
+} else if(!isEmail($email_booking)) {
+	echo '<div class="error_message">Je e-mail adres was niet correct, probeer nogmaals.</div>';
+	exit();
+} 
+
+
+//$address = "HERE your email address";
+$address = "info@monventoux.com, goddeerisjonas@me.com";
+
+
+// Below the subject of the email
+$e_subject = "Je bent gecontacteerd door $name_booking op de NL mon ventoux";
+
+// You can change this if you feel that you need to.
+$e_body = "Je bent gecontacteerd door ' $name_booking' met volgende aanvraag." . PHP_EOL . PHP_EOL;
+$e_content = "Aankomst:$check_in\nVertrek:$check_out\nKamer: $room_type\nVolwassenen: $adults\nKinderen: $children" . PHP_EOL . PHP_EOL;
+$e_reply = "Neem contact op met $name_booking via email: $email_booking.";
+
+$msg = wordwrap( $e_body . $e_content . $e_reply, 70 );
+
+$headers = "From: $email_booking" . PHP_EOL;
+$headers .= "Reply-To: $email_booking" . PHP_EOL;
+$headers .= "MIME-Version: 1.0" . PHP_EOL;
+$headers .= "Content-type: text/plain; charset=utf-8" . PHP_EOL;
+$headers .= "Content-Transfer-Encoding: quoted-printable" . PHP_EOL;
+
+$user = "$email_booking";
+$usersubject = "Bedankt - Mon Ventoux";
+$userheaders = "From: info@monventoux.com";
+$usermessage = "Bedankt om de beschikbaarheid na te gaan op de website van Mon Ventoux.\n We antwoorden zo snel mogelijk met de details van je aanvraag. Dit is een overzicht van je aanvraag: \n\n$e_content.  \n\n Mon Ventoux\nBel +33490640884 voor meer informatie.";
+mail($user,$usersubject,$usermessage,$userheaders);
+
+if(mail($address, $e_subject, $msg, $headers)) {
+
+	// Success message
+	echo "<div id='success_page' style='padding:20px 0 40px 0; text-align:center; '>";
+	echo "<div style='font-size:90px; font-weight:normal; margin-bottom:20px;'><i class='icon_set_1_icon-76'></i></div>";
+	echo "<strong >Email verzonden.</strong><br>";
+	echo "Bedankt <strong>$name_booking</strong>,<br> je aanvraag wordt verwerkt. We nemen snel contact met je op.";
+	echo "</div>";
+
+} else {
+
+	echo 'ERROR!';
+
+}
